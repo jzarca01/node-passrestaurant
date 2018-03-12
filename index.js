@@ -1,7 +1,7 @@
 const axios = require("axios");
 const base64 = require("base-64");
 
-const { encrypt } = require('./lib/utils');
+const { encrypt, encodeParams } = require('./lib/utils');
 
 const config = require("./config.json")
 
@@ -53,6 +53,70 @@ sodexoApi.prototype.getConsumerInfo = async function(login, accessToken) {
             url: CONSUMER_URL + `/${login}/consumer`,
             headers: {
                 "Authorization": "Bearer " + accessToken
+            },
+            responseType: 'json'
+        });
+        return response.data;
+    }
+    catch(error) {
+        console.log("error", error);
+    }
+}
+
+sodexoApi.prototype.getParams = async function(login, accessToken) {
+    try {
+        axios.interceptors.request.use(function (axiosConfig) {
+            const timestamp = Math.floor(Date.now()/1000).toString()
+            Object.assign(axiosConfig.params, {
+                timestamp: timestamp,
+                signature: encrypt(axiosConfig.url+`?timestamp=${timestamp}`, config.CLIENT_KEY)
+            })
+            return axiosConfig;
+          }, function (error) {
+            return Promise.reject(error);
+          });
+        let response = await axios({
+            method: "GET",
+            url: CONSUMER_URL + `/${login}/params`,
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            },
+            params: {
+                domain_perimeter: {
+                    product_code: "restaurant",
+                    support_code: "carte"
+                }
+            },
+            responseType: 'json'
+        });
+        return response.data;
+    }
+    catch(error) {
+        console.log("error", error);
+    }
+}
+
+sodexoApi.prototype.getTransactions = async function(login, cardId, cardType, accessToken) {
+    try {
+        axios.interceptors.request.use(function (axiosConfig) {
+            const timestamp = Math.floor(Date.now()/1000).toString()
+            const params = encodeParams(axiosConfig.params);
+            Object.assign(axiosConfig.params, {
+                timestamp: timestamp,
+                signature: encrypt(axiosConfig.url+`?${params}&timestamp=${timestamp}`, config.CLIENT_KEY)
+            })
+            return axiosConfig;
+          }, function (error) {
+            return Promise.reject(error);
+          });
+        let response = await axios({
+            method: "GET",
+            url: CONSUMER_URL + `/${login}/cards/${cardId}/transactions`,
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            },
+            params: {
+                cardType: cardType
             },
             responseType: 'json'
         });
