@@ -1,4 +1,6 @@
 {
     "PUBLIC_ID" : "",
-    "CLIENT_KEY" : ""
+    "CLIENT_KEY" : "",
+    "CLIENT_ID" : "",
+    "WS_VERSION" : ""
 }
