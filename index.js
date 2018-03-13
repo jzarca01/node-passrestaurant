@@ -14,7 +14,7 @@ const mainInstance = createMainInstance(CONSUMER_URL, config.CLIENT_KEY);
 function sodexoApi() {
 }
 
-sodexoApi.prototype.signIn = async function(login, password) {
+sodexoApi.prototype.signIn = async (login, password) => {
     try {
         const auth = base64.encode(`${config.PUBLIC_ID}:${config.CLIENT_KEY}`);
         let response = await axios({
@@ -37,7 +37,7 @@ sodexoApi.prototype.signIn = async function(login, password) {
     }
 }
 
-sodexoApi.prototype.getConsumerInfo = async function(login, accessToken) {
+sodexoApi.prototype.getConsumerInfo = async (login, accessToken) => {
     try {
         let response = await mainInstance.get(CONSUMER_URL + `/${login}/consumer`, {
             headers: {
@@ -53,13 +53,60 @@ sodexoApi.prototype.getConsumerInfo = async function(login, accessToken) {
     }
 }
 
-sodexoApi.prototype.getParams = async function(login, accessToken) {
+sodexoApi.prototype.getCards = async (login, accessToken) => {
+    try {
+        let response = await mainInstance(CONSUMER_URL + `/${login}/cards`, {
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            },
+            params: {
+                domain_perimeters: {
+                    domain_perimeter:[0][
+                        {
+                            product_code: "restaurant",
+                            support_code: "carte"
+                        }
+                    ]
+                },
+            },
+            responseType: 'json'
+        });
+        return response.data;
+    }
+    catch(error) {
+        console.log("error", error);
+    }
+}
+
+sodexoApi.prototype.getParams = async (login, accessToken) => {
     try {
         let response = await mainInstance(CONSUMER_URL + `/${login}/params`, {
             headers: {
                 "Authorization": "Bearer " + accessToken
             },
             params: {
+                domain_perimeter:[0][ {
+                    product_code: "restaurant",
+                    support_code: "carte"
+                }]
+            },
+            responseType: 'json'
+        });
+        return response.data;
+    }
+    catch(error) {
+        console.log("error", error);
+    }
+}
+
+sodexoApi.prototype.getBalance = async (login, cardId, cardType, accessToken) => {
+    try {
+        let response = await mainInstance(CONSUMER_URL + `/${login}/cards/${cardId}/balance`, {
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            },
+            params: {
+                card_type: cardType,
                 domain_perimeter: {
                     product_code: "restaurant",
                     support_code: "carte"
@@ -74,7 +121,7 @@ sodexoApi.prototype.getParams = async function(login, accessToken) {
     }
 }
 
-sodexoApi.prototype.getTransactions = async function(login, cardId, cardType, accessToken) {
+sodexoApi.prototype.getTransactions = async (login, cardId, cardType, accessToken) => {
     try {
         let response = await mainInstance(CONSUMER_URL + `/${login}/cards/${cardId}/transactions`, {
             headers: {
