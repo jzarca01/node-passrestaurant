@@ -63,3 +63,4 @@ typings/
 example.js
 config.json
 yarn.lock
+test.js

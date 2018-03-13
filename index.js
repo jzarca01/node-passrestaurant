@@ -1,14 +1,15 @@
 const axios = require("axios");
 const base64 = require("base-64");
 
-const { encrypt, encodeParams } = require('./lib/utils');
+const { encrypt, createMainInstance } = require('./lib/utils');
 
 const config = require("./config.json")
 
 const BASE_URL = `https://api-moncompte.sodexopass.fr/${config.WS_VERSION}`;
 const AUTH_URL = BASE_URL + "/token";
+const CONSUMER_URL = BASE_URL + `/${config.CLIENT_ID}/account`;
 
-const CONSUMER_URL = BASE_URL + `/${config.CLIENT_ID}/account`
+const mainInstance = createMainInstance(CONSUMER_URL, config.CLIENT_KEY);
 
 function sodexoApi() {
 }
@@ -19,10 +20,10 @@ sodexoApi.prototype.signIn = async function(login, password) {
         let response = await axios({
             method: "POST",
             url: AUTH_URL,
-            data: { 
-                "grant_type": "password", 
-                "username": login, 
-                "password": password 
+            data: {
+                "grant_type": "password",
+                "username": login,
+                "password": password
             },
             headers: {
                 "Authorization": "Basic " + auth
@@ -38,22 +39,11 @@ sodexoApi.prototype.signIn = async function(login, password) {
 
 sodexoApi.prototype.getConsumerInfo = async function(login, accessToken) {
     try {
-        axios.interceptors.request.use(function (axiosConfig) {
-            const timestamp = Math.floor(Date.now()/1000).toString()
-            axiosConfig.params = {
-                timestamp: timestamp,
-                signature: encrypt(axiosConfig.url+`?timestamp=${timestamp}`, config.CLIENT_KEY)
-            }
-            return axiosConfig;
-          }, function (error) {
-            return Promise.reject(error);
-          });
-        let response = await axios({
-            method: "GET",
-            url: CONSUMER_URL + `/${login}/consumer`,
+        let response = await mainInstance.get(CONSUMER_URL + `/${login}/consumer`, {
             headers: {
                 "Authorization": "Bearer " + accessToken
             },
+            params: {},
             responseType: 'json'
         });
         return response.data;
@@ -65,19 +55,7 @@ sodexoApi.prototype.getConsumerInfo = async function(login, accessToken) {
 
 sodexoApi.prototype.getParams = async function(login, accessToken) {
     try {
-        axios.interceptors.request.use(function (axiosConfig) {
-            const timestamp = Math.floor(Date.now()/1000).toString()
-            Object.assign(axiosConfig.params, {
-                timestamp: timestamp,
-                signature: encrypt(axiosConfig.url+`?timestamp=${timestamp}`, config.CLIENT_KEY)
-            })
-            return axiosConfig;
-          }, function (error) {
-            return Promise.reject(error);
-          });
-        let response = await axios({
-            method: "GET",
-            url: CONSUMER_URL + `/${login}/params`,
+        let response = await mainInstance(CONSUMER_URL + `/${login}/params`, {
             headers: {
                 "Authorization": "Bearer " + accessToken
             },
@@ -98,20 +76,7 @@ sodexoApi.prototype.getParams = async function(login, accessToken) {
 
 sodexoApi.prototype.getTransactions = async function(login, cardId, cardType, accessToken) {
     try {
-        axios.interceptors.request.use(function (axiosConfig) {
-            const timestamp = Math.floor(Date.now()/1000).toString()
-            const params = encodeParams(axiosConfig.params);
-            Object.assign(axiosConfig.params, {
-                timestamp: timestamp,
-                signature: encrypt(axiosConfig.url+`?${params}&timestamp=${timestamp}`, config.CLIENT_KEY)
-            })
-            return axiosConfig;
-          }, function (error) {
-            return Promise.reject(error);
-          });
-        let response = await axios({
-            method: "GET",
-            url: CONSUMER_URL + `/${login}/cards/${cardId}/transactions`,
+        let response = await mainInstance(CONSUMER_URL + `/${login}/cards/${cardId}/transactions`, {
             headers: {
                 "Authorization": "Bearer " + accessToken
             },
