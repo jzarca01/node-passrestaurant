@@ -139,4 +139,4 @@ sodexoApi.prototype.getTransactions = async (login, cardId, cardType, accessToke
     }
 }
 
-module.exports = sodexoApi;
+module.exports = new sodexoApi();
