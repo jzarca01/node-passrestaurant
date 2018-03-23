@@ -3,15 +3,13 @@ const base64 = require("base-64");
 
 const { encrypt, createMainInstance } = require('./lib/utils');
 
-const config = require("./config.json")
-
 const BASE_URL = `https://api-moncompte.sodexopass.fr/${config.WS_VERSION}`;
 const AUTH_URL = BASE_URL + "/token";
 const CONSUMER_URL = BASE_URL + `/${config.CLIENT_ID}/account`;
 
 const mainInstance = createMainInstance(CONSUMER_URL, config.CLIENT_KEY);
 
-function sodexoApi() {
+function sodexoApi(config) {
 }
 
 sodexoApi.prototype.signIn = async (login, password) => {
@@ -139,4 +137,4 @@ sodexoApi.prototype.getTransactions = async (login, cardId, cardType, accessToke
     }
 }
 
-module.exports = new sodexoApi();
+module.exports = sodexoApi;
