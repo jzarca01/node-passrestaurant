@@ -1,10 +1,13 @@
 const axios = require("axios");
 const base64 = require("base-64");
 
-const { encrypt, createMainInstance } = require('./lib/utils');
+const {
+    encrypt,
+    createMainInstance
+} = require('./lib/utils');
 
 class sodexoApi {
-    
+
     constructor(config) {
         this.config = config;
 
@@ -16,7 +19,16 @@ class sodexoApi {
 
     }
 
-    async signIn (login, password) {
+    setAccessToken(accessToken) {
+        this.mainInstance.defaults.headers.common['Authorization'] = '';
+        delete this.mainInstance.defaults.headers.common['Authorization'];
+
+        this.mainInstance.defaults.headers.common[
+            'Authorization'
+        ] = `Bearer ${accessToken}`;
+    }
+
+    async signIn(login, password) {
         try {
             const auth = base64.encode(`${this.config.PUBLIC_ID}:${this.config.CLIENT_KEY}`);
             let response = await axios({
@@ -29,56 +41,44 @@ class sodexoApi {
                 },
                 headers: {
                     "Authorization": "Basic " + auth
-                    
+
                 },
                 responseType: 'json'
             });
+            this.setAccessToken(response.data.access_token)
             return response.data;
-        }
-        catch(error) {
+        } catch (error) {
             console.log("error", error);
         }
     }
 
-    async getConsumerInfo (login, accessToken) {
+    async getConsumerInfo(login) {
         try {
             let response = await this.mainInstance.get(this.CONSUMER_URL + `/${login}/consumer`, {
-                headers: {
-                    "Authorization": "Bearer " + accessToken
-                },
-                params: {},
                 responseType: 'json'
             });
             return response.data;
-        }
-        catch(error) {
+        } catch (error) {
             console.log("error", error);
         }
     }
 
-    async getCards (login, accessToken) {
+    async getCards(login) {
         try {
             let response = await this.mainInstance(this.CONSUMER_URL + `/${login}/cards?domain_perimeters%5Bdomain_perimeter%5D%5B0%5D%5Bproduct_code%5D=restaurant&domain_perimeters%5Bdomain_perimeter%5D%5B0%5D%5Bsupport_code%5D=carte`, {
-                headers: {
-                    "Authorization": "Bearer " + accessToken
-                },
                 responseType: 'json'
             });
             return response.data;
-        }
-        catch(error) {
+        } catch (error) {
             console.log("error", error);
         }
     }
 
-    async getParams (login, accessToken) {
+    async getParams(login) {
         try {
             let response = await this.mainInstance(this.CONSUMER_URL + `/${login}/params`, {
-                headers: {
-                    "Authorization": "Bearer " + accessToken
-                },
                 params: {
-                    domain_perimeter:[0][ {
+                    domain_perimeter: [0][{
                         product_code: "restaurant",
                         support_code: "carte"
                     }]
@@ -86,41 +86,32 @@ class sodexoApi {
                 responseType: 'json'
             });
             return response.data;
-        }
-        catch(error) {
+        } catch (error) {
             console.log("error", error);
         }
     }
 
-    async getBalance (login, cardId, cardType, accessToken) {
+    async getBalance(login, cardId, cardType) {
         try {
             let response = await this.mainInstance(this.CONSUMER_URL + `/${login}/cards/${cardId}/balance?card_type=${cardType}&domain_perimeter%5Bproduct_code%5D=restaurant&domain_perimeter%5Bsupport_code%5D=carte`, {
-                headers: {
-                    "Authorization": "Bearer " + accessToken
-                },
                 responseType: 'json'
             });
             return response.data;
-        }
-        catch(error) {
+        } catch (error) {
             console.log("error", error);
         }
     }
 
-    async getTransactions (login, cardId, cardType, accessToken) {
+    async getTransactions(login, cardId, cardType) {
         try {
             let response = await this.mainInstance(this.CONSUMER_URL + `/${login}/cards/${cardId}/transactions`, {
-                headers: {
-                    "Authorization": "Bearer " + accessToken
-                },
                 params: {
                     cardType: cardType
                 },
                 responseType: 'json'
             });
             return response.data;
-        }
-        catch(error) {
+        } catch (error) {
             console.log("error", error);
         }
     }
