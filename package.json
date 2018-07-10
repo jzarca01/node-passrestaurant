@@ -1,5 +1,5 @@
 {
-  "name": "sodexo-api",
+  "name": "node-passrestaurant",
   "version": "1.0.1",
   "description": "An API for Sodexo Pass Restaurant",
   "main": "index.js",
