@@ -1,14 +1,22 @@
-# sodexo-api
+# node-passrestaurant
+
 Une API pour la carte Pass Restaurant de Sodexo
 
 ## Usage
 
 ```
-const SodexoApi = require('sodexo-api')
-const sodexo = new SodexoApi()
+const Sodexo = require('node-passrestaurant')
+const sodexo = new Sodexo({
+  {
+    "PUBLIC_ID" : "",
+    "CLIENT_KEY" : "",
+    "CLIENT_ID" : "",
+    "WS_VERSION" : ""
+})
 ```
 
 ### Sign in
+
 ```
 sodexo.signIn(login, password)
   .then(response => {
@@ -17,6 +25,7 @@ sodexo.signIn(login, password)
 ```
 
 ### Get Consumer Info
+
 ```
 sodexo.getConsumerInfos(login, API_TOKEN)
   .then(response => {
@@ -25,6 +34,7 @@ sodexo.getConsumerInfos(login, API_TOKEN)
 ```
 
 ### Get transactions
+
 ```
 sodexo.getTransactions(login, cardId, cardType, API_TOKEN)
   .then(response => {

@@ -6,7 +6,7 @@ const {
     createMainInstance
 } = require('./lib/utils');
 
-class sodexoApi {
+class Sodexo {
 
     constructor(config) {
         this.config = config;
@@ -118,4 +118,4 @@ class sodexoApi {
 }
 
 
-module.exports = sodexoApi;
+module.exports = Sodexo;
