@@ -19,15 +19,12 @@ const sodexo = new Sodexo({
 
 ```
 sodexo.signIn(login, password)
-  .then(response => {
-    API_TOKEN = response.access_token
-    })
 ```
 
 ### Get Consumer Info
 
 ```
-sodexo.getConsumerInfos(login, API_TOKEN)
+sodexo.getConsumerInfos(login)
   .then(response => {
     console.log(response)
   })
@@ -36,7 +33,7 @@ sodexo.getConsumerInfos(login, API_TOKEN)
 ### Get transactions
 
 ```
-sodexo.getTransactions(login, cardId, cardType, API_TOKEN)
+sodexo.getTransactions(login, cardId, cardType)
   .then(response => {
     console.log(response)
   })
